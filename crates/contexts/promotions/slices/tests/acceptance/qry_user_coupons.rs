@@ -6,7 +6,6 @@ use uuid::Uuid;
 use super::support::{build_router, get_json, seed_coupon};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn queries_user_coupons_and_returns_empty_for_new_user(pool: PgPool) {
     seed_coupon(&pool, "VIP50", 20_000, 5_000, 5).await;
     let user_id = Uuid::new_v4();

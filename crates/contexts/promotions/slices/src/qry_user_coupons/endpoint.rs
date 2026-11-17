@@ -3,10 +3,12 @@ use axum::extract::{Path, State};
 use shopkit_infra::problem::ProblemDetails;
 use shopkit_infra::routing::{SliceDescriptor, SliceStatus};
 use shopkit_infra::state::AppState;
+use shopkit_primitives::ids::UserId;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 use uuid::Uuid;
 
+use super::handler;
 use super::query::UserCouponsResponse;
 
 #[utoipa::path(
@@ -21,10 +23,13 @@ use super::query::UserCouponsResponse;
     tag = "promotions"
 )]
 async fn user_coupons_endpoint(
-    State(_state): State<AppState>,
-    Path(_user_id): Path<Uuid>,
+    State(state): State<AppState>,
+    Path(user_id): Path<Uuid>,
 ) -> Result<Json<UserCouponsResponse>, ProblemDetails> {
-    Err(ProblemDetails::not_implemented("qry_user_coupons"))
+    let response = handler::handle(&state.pool, UserId::from_uuid(user_id))
+        .await
+        .map_err(|err| ProblemDetails::internal(err.to_string()))?;
+    Ok(Json(response))
 }
 
 pub fn router() -> OpenApiRouter<AppState> {
@@ -35,7 +40,7 @@ inventory::submit! {
     SliceDescriptor {
         context: "promotions",
         name: "qry_user_coupons",
-        status: SliceStatus::Planned,
+        status: SliceStatus::Active,
         router_fn: router,
     }
 }

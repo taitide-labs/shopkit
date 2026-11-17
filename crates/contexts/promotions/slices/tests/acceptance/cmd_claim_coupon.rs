@@ -6,7 +6,6 @@ use uuid::Uuid;
 use super::support::{build_router, post_json, seed_coupon};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn claims_coupon_and_enforces_quota_and_uniqueness(pool: PgPool) {
     seed_coupon(&pool, "SAVE20", 10_000, 2_000, 1).await;
     let app = build_router(pool.clone());

@@ -7,7 +7,23 @@ use shopkit_infra::state::AppState;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
-use super::command::{ClaimCouponBody, ClaimCouponResponse};
+use super::command::{ClaimCouponBody, ClaimCouponInput, ClaimCouponResponse};
+use super::handler::{self, ClaimCouponError};
+
+fn map_claim_error(err: ClaimCouponError) -> ProblemDetails {
+    match err {
+        ClaimCouponError::NotFound => {
+            ProblemDetails::not_found("COUPON_NOT_FOUND", "优惠券批次不存在")
+        }
+        ClaimCouponError::AlreadyClaimed => {
+            ProblemDetails::conflict("COUPON_ALREADY_CLAIMED", "用户已领取该优惠券")
+        }
+        ClaimCouponError::QuotaExhausted => {
+            ProblemDetails::conflict("COUPON_QUOTA_EXHAUSTED", "优惠券库存已耗尽")
+        }
+        ClaimCouponError::Internal(detail) => ProblemDetails::internal(detail),
+    }
+}
 
 #[utoipa::path(
     post,
@@ -25,11 +41,16 @@ use super::command::{ClaimCouponBody, ClaimCouponResponse};
     tag = "promotions"
 )]
 async fn claim_coupon_endpoint(
-    State(_state): State<AppState>,
-    Path(_code): Path<String>,
-    Json(_body): Json<ClaimCouponBody>,
+    State(state): State<AppState>,
+    Path(code): Path<String>,
+    Json(body): Json<ClaimCouponBody>,
 ) -> Result<(StatusCode, Json<ClaimCouponResponse>), ProblemDetails> {
-    Err(ProblemDetails::not_implemented("cmd_claim_coupon"))
+    let input = ClaimCouponInput::try_new(&code, body)
+        .map_err(|err| ProblemDetails::unprocessable("INVALID_COUPON_CODE", err.to_string()))?;
+    let response = handler::handle(&state, &input)
+        .await
+        .map_err(map_claim_error)?;
+    Ok((StatusCode::CREATED, Json(response)))
 }
 
 pub fn router() -> OpenApiRouter<AppState> {
@@ -40,7 +61,7 @@ inventory::submit! {
     SliceDescriptor {
         context: "promotions",
         name: "cmd_claim_coupon",
-        status: SliceStatus::Planned,
+        status: SliceStatus::Active,
         router_fn: router,
     }
 }
