@@ -1,12 +1,50 @@
 [workspace]
 resolver = "3"
-members = ["crates/server"]
+members = [
+  "crates/primitives",
+  "crates/contracts",
+  "crates/infra",
+  "crates/contexts/orders/domain",
+  "crates/contexts/orders/slices",
+  "crates/contexts/inventory/domain",
+  "crates/contexts/inventory/slices",
+  "crates/contexts/promotions/slices",
+  "crates/server",
+  "crates/e2e-journeys",
+]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/taitide-labs/shopkit"
+
+[workspace.dependencies]
+axum = "0.8"
+http = "1"
+http-body-util = "0.1"
+inventory = "0.3"
+parking_lot = "0.13"
+rust_decimal = { version = "1.37", features = ["serde-with-str"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+shopkit-contracts = { path = "crates/contracts" }
+shopkit-infra = { path = "crates/infra" }
+shopkit-inventory-domain = { path = "crates/contexts/inventory/domain" }
+shopkit-inventory-slices = { path = "crates/contexts/inventory/slices" }
+shopkit-orders-domain = { path = "crates/contexts/orders/domain" }
+shopkit-orders-slices = { path = "crates/contexts/orders/slices" }
+shopkit-primitives = { path = "crates/primitives" }
+shopkit-promotions-slices = { path = "crates/contexts/promotions/slices" }
+shopkit-server = { path = "crates/server" }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "uuid", "time", "json", "macros", "migrate"] }
+thiserror = "2"
+time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde"] }
+tokio = { version = "1", features = ["fs", "macros", "net", "rt-multi-thread", "sync", "time"] }
+tower = { version = "0.5", features = ["util"] }
+utoipa = { version = "6", features = ["axum_extras", "decimal", "time", "uuid"] }
+utoipa-axum = "0.3"
+uuid = { version = "1", features = ["serde", "v4"] }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
@@ -50,4 +88,3 @@ clone_on_ref_ptr = "deny"
 mod_module_files = "forbid"
 tests_outside_test_module = "forbid"
 inline_modules = "deny"
-

@@ -46,6 +46,18 @@ jobs:
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -67,6 +79,7 @@ jobs:
         shell: bash
         env:
           TARGET: ${{ matrix.target }}
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
         run: cargo test --workspace --locked --target "$TARGET"
       - name: Build and package binary
         shell: bash

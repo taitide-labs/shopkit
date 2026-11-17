@@ -1,0 +1,24 @@
+[package]
+name = "shopkit-infra"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+axum.workspace = true
+http.workspace = true
+inventory.workspace = true
+parking_lot.workspace = true
+serde.workspace = true
+shopkit-contracts.workspace = true
+shopkit-primitives.workspace = true
+sqlx.workspace = true
+time.workspace = true
+tokio.workspace = true
+utoipa.workspace = true
+utoipa-axum.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,16 @@
+[package]
+name = "shopkit-orders-domain"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+shopkit-primitives.workspace = true
+thiserror.workspace = true
+time.workspace = true
+
+[lints]
+workspace = true

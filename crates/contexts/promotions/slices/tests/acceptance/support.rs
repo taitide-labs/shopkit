@@ -1,0 +1,96 @@
+use std::sync::Arc;
+
+use axum::Router;
+use axum::body::Body;
+use http::{Request, StatusCode};
+use http_body_util::BodyExt;
+use serde::Serialize;
+use serde_json::Value;
+use shopkit_infra::clock::FixedClock;
+use shopkit_infra::event_bus::EventBus;
+use shopkit_infra::fakes::FakeStockReservationPort;
+use shopkit_infra::routing::SliceDescriptor;
+use shopkit_infra::state::AppState;
+use shopkit_promotions_slices::port::PgCouponRedemptionPort;
+use sqlx::PgPool;
+use time::macros::datetime;
+use tower::ServiceExt;
+use utoipa_axum::router::OpenApiRouter;
+
+pub fn build_router(pool: PgPool) -> Router {
+    shopkit_promotions_slices::link();
+    let clock_instant = datetime!(2026-11-18 0:00:00 UTC);
+    let state = AppState::new(
+        pool.clone(),
+        EventBus::default(),
+        Arc::new(FakeStockReservationPort::default()),
+        Arc::new(PgCouponRedemptionPort::new(pool)),
+        Arc::new(FixedClock::new(clock_instant)),
+    );
+    let mut api = OpenApiRouter::new();
+    for descriptor in inventory::iter::<SliceDescriptor>() {
+        if descriptor.context == "promotions" {
+            api = api.merge((descriptor.router_fn)());
+        }
+    }
+    let (router, _openapi) = api.split_for_parts();
+    router.with_state(state)
+}
+
+pub async fn seed_coupon(
+    pool: &PgPool,
+    code: &str,
+    min_spend_cents: i64,
+    discount_cents: i64,
+    total_quota: i32,
+) {
+    sqlx::query(
+        "INSERT INTO coupons (code, min_spend_cents, discount_cents, total_quota, claimed_count, created_at)
+         VALUES ($1, $2, $3, $4, 0, NOW())",
+    )
+    .bind(code)
+    .bind(min_spend_cents)
+    .bind(discount_cents)
+    .bind(total_quota)
+    .execute(pool)
+    .await
+    .expect("seed coupon");
+}
+
+pub async fn post_json<T: Serialize>(app: &Router, uri: &str, payload: &T) -> (StatusCode, Value) {
+    let body = serde_json::to_vec(payload).expect("serialize body");
+    let request = Request::builder()
+        .method("POST")
+        .uri(uri)
+        .header("content-type", "application/json")
+        .body(Body::from(body))
+        .expect("build request");
+    let response = app.clone().oneshot(request).await.expect("send request");
+    let status = response.status();
+    let bytes = response
+        .into_body()
+        .collect()
+        .await
+        .expect("read body")
+        .to_bytes();
+    let json = serde_json::from_slice(&bytes).unwrap_or(Value::Null);
+    (status, json)
+}
+
+pub async fn get_json(app: &Router, uri: &str) -> (StatusCode, Value) {
+    let request = Request::builder()
+        .method("GET")
+        .uri(uri)
+        .body(Body::empty())
+        .expect("build request");
+    let response = app.clone().oneshot(request).await.expect("send request");
+    let status = response.status();
+    let bytes = response
+        .into_body()
+        .collect()
+        .await
+        .expect("read body")
+        .to_bytes();
+    let json = serde_json::from_slice(&bytes).unwrap_or(Value::Null);
+    (status, json)
+}
