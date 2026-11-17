@@ -5,7 +5,6 @@ use sqlx::PgPool;
 use super::support::{build_router, get_json, seed_sku};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn queries_sku_stock_or_returns_404(pool: PgPool) {
     seed_sku(&pool, "SKU-BAG-01", 12, 3).await;
     let app = build_router(pool);

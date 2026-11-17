@@ -22,10 +22,12 @@ use super::command::ReleaseStockResponse;
     tag = "inventory"
 )]
 async fn release_stock_endpoint(
-    State(_state): State<AppState>,
-    Path(_reservation_id): Path<Uuid>,
+    State(state): State<AppState>,
+    Path(reservation_id): Path<Uuid>,
 ) -> Result<Json<ReleaseStockResponse>, ProblemDetails> {
-    Err(ProblemDetails::not_implemented("cmd_release_stock"))
+    super::handler::handle(&state, reservation_id)
+        .await
+        .map(Json)
 }
 
 pub fn router() -> OpenApiRouter<AppState> {
@@ -36,7 +38,7 @@ inventory::submit! {
     SliceDescriptor {
         context: "inventory",
         name: "cmd_release_stock",
-        status: SliceStatus::Planned,
+        status: SliceStatus::Active,
         router_fn: router,
     }
 }

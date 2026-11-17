@@ -21,10 +21,11 @@ use super::command::{ReserveStockBody, ReserveStockResponse};
     tag = "inventory"
 )]
 async fn reserve_stock_endpoint(
-    State(_state): State<AppState>,
-    Json(_body): Json<ReserveStockBody>,
+    State(state): State<AppState>,
+    Json(body): Json<ReserveStockBody>,
 ) -> Result<(axum::http::StatusCode, Json<ReserveStockResponse>), ProblemDetails> {
-    Err(ProblemDetails::not_implemented("cmd_reserve_stock"))
+    let response = super::handler::handle(&state, body).await?;
+    Ok((axum::http::StatusCode::CREATED, Json(response)))
 }
 
 pub fn router() -> OpenApiRouter<AppState> {
@@ -35,7 +36,7 @@ inventory::submit! {
     SliceDescriptor {
         context: "inventory",
         name: "cmd_reserve_stock",
-        status: SliceStatus::Planned,
+        status: SliceStatus::Active,
         router_fn: router,
     }
 }

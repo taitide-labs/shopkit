@@ -22,10 +22,10 @@ use super::query::SkuStockResponse;
     tag = "inventory"
 )]
 async fn sku_stock_endpoint(
-    State(_state): State<AppState>,
-    Path(_sku): Path<String>,
+    State(state): State<AppState>,
+    Path(sku): Path<String>,
 ) -> Result<Json<SkuStockResponse>, ProblemDetails> {
-    Err(ProblemDetails::not_implemented("qry_sku_stock"))
+    super::handler::handle(&state, &sku).await.map(Json)
 }
 
 pub fn router() -> OpenApiRouter<AppState> {
@@ -36,7 +36,7 @@ inventory::submit! {
     SliceDescriptor {
         context: "inventory",
         name: "qry_sku_stock",
-        status: SliceStatus::Planned,
+        status: SliceStatus::Active,
         router_fn: router,
     }
 }
