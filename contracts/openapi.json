@@ -1,0 +1,828 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "shopkit",
+    "description": "AI-native modular monolith e-commerce reference platform",
+    "license": {
+      "name": "MIT",
+      "identifier": "MIT"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/inventory/reservations": {
+      "post": {
+        "tags": [
+          "inventory"
+        ],
+        "operationId": "reserve_stock_endpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReserveStockBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "库存预占成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReserveStockResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "商品 SKU 不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "可用库存不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "预占请求参数不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/reservations/{reservation_id}/release": {
+      "post": {
+        "tags": [
+          "inventory"
+        ],
+        "operationId": "release_stock_endpoint",
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "description": "预占凭证 ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "库存释放成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseStockResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "预占凭证不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/skus/{sku}": {
+      "get": {
+        "tags": [
+          "inventory"
+        ],
+        "operationId": "sku_stock_endpoint",
+        "parameters": [
+          {
+            "name": "sku",
+            "in": "path",
+            "description": "商品 SKU 编码",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "库存查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkuStockResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "商品 SKU 不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "SKU 参数不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "post": {
+        "tags": [
+          "orders"
+        ],
+        "operationId": "place_order_endpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceOrderBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "下单成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceOrderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "商品或优惠券不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "库存不足、优惠券已占用或订单号冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "下单参数不合法或未满足满减门槛",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{order_id}": {
+      "get": {
+        "tags": [
+          "orders"
+        ],
+        "operationId": "order_detail_endpoint",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "订单 ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "订单详情查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "订单不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{order_id}/cancel": {
+      "post": {
+        "tags": [
+          "orders"
+        ],
+        "operationId": "cancel_order_endpoint",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "订单 ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "订单取消成功并释放库存与优惠券",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelOrderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "订单不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "订单已取消或状态不允许取消",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/promotions/coupons/{code}/claim": {
+      "post": {
+        "tags": [
+          "promotions"
+        ],
+        "operationId": "claim_coupon_endpoint",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "优惠券批次编码",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimCouponBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "优惠券申领成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimCouponResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "优惠券批次不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "优惠券库存耗尽或用户已重复申领",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "优惠券编码不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/promotions/users/{user_id}/coupons": {
+      "get": {
+        "tags": [
+          "promotions"
+        ],
+        "operationId": "user_coupons_endpoint",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "用户 ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户优惠券列表查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCouponsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CancelOrderResponse": {
+        "type": "object",
+        "required": [
+          "order_id",
+          "status"
+        ],
+        "properties": {
+          "order_id": {
+            "$ref": "#/components/schemas/OrderId"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "ClaimCouponBody": {
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ClaimCouponResponse": {
+        "type": "object",
+        "required": [
+          "user_coupon_id",
+          "user_id",
+          "code",
+          "min_spend_cents",
+          "discount_cents"
+        ],
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/CouponCode"
+          },
+          "discount_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "min_spend_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "user_coupon_id": {
+            "$ref": "#/components/schemas/UserCouponId"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/UserId"
+          }
+        }
+      },
+      "CouponCode": {
+        "type": "string"
+      },
+      "OrderDetailItemView": {
+        "type": "object",
+        "required": [
+          "sku",
+          "unit_price_cents",
+          "quantity"
+        ],
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "unit_price_cents": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "OrderDetailResponse": {
+        "type": "object",
+        "required": [
+          "order_id",
+          "user_id",
+          "reservation_id",
+          "status",
+          "subtotal_cents",
+          "discount_cents",
+          "payable_cents",
+          "items"
+        ],
+        "properties": {
+          "coupon_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "discount_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderDetailItemView"
+            }
+          },
+          "order_id": {
+            "$ref": "#/components/schemas/OrderId"
+          },
+          "payable_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reservation_id": {
+            "$ref": "#/components/schemas/ReservationId"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subtotal_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/UserId"
+          }
+        }
+      },
+      "OrderId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "PlaceOrderBody": {
+        "type": "object",
+        "required": [
+          "user_id",
+          "items"
+        ],
+        "properties": {
+          "coupon_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlaceOrderItemDto"
+            }
+          },
+          "order_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PlaceOrderItemDto": {
+        "type": "object",
+        "required": [
+          "sku",
+          "unit_price_cents",
+          "quantity"
+        ],
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "sku": {
+            "type": "string"
+          },
+          "unit_price_cents": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PlaceOrderResponse": {
+        "type": "object",
+        "required": [
+          "order_id",
+          "reservation_id",
+          "status",
+          "subtotal_cents",
+          "discount_cents",
+          "payable_cents"
+        ],
+        "properties": {
+          "discount_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "order_id": {
+            "$ref": "#/components/schemas/OrderId"
+          },
+          "payable_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reservation_id": {
+            "$ref": "#/components/schemas/ReservationId"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subtotal_cents": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "required": [
+          "status",
+          "code",
+          "detail"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "ReleaseStockResponse": {
+        "type": "object",
+        "required": [
+          "reservation_id",
+          "released"
+        ],
+        "properties": {
+          "released": {
+            "type": "boolean"
+          },
+          "reservation_id": {
+            "$ref": "#/components/schemas/ReservationId"
+          }
+        }
+      },
+      "ReservationId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "ReserveStockBody": {
+        "type": "object",
+        "required": [
+          "order_id",
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReserveStockLineDto"
+            }
+          },
+          "order_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ReserveStockLineDto": {
+        "type": "object",
+        "required": [
+          "sku",
+          "quantity"
+        ],
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "sku": {
+            "type": "string"
+          }
+        }
+      },
+      "ReserveStockResponse": {
+        "type": "object",
+        "required": [
+          "reservation_id",
+          "order_id"
+        ],
+        "properties": {
+          "order_id": {
+            "$ref": "#/components/schemas/OrderId"
+          },
+          "reservation_id": {
+            "$ref": "#/components/schemas/ReservationId"
+          }
+        }
+      },
+      "SkuStockResponse": {
+        "type": "object",
+        "required": [
+          "sku",
+          "available_qty",
+          "reserved_qty"
+        ],
+        "properties": {
+          "available_qty": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reserved_qty": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sku": {
+            "type": "string"
+          }
+        }
+      },
+      "UserCouponId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "UserCouponItemView": {
+        "type": "object",
+        "required": [
+          "user_coupon_id",
+          "code",
+          "status",
+          "min_spend_cents",
+          "discount_cents"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "discount_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "min_spend_cents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "order_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrderId"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "user_coupon_id": {
+            "$ref": "#/components/schemas/UserCouponId"
+          }
+        }
+      },
+      "UserCouponsResponse": {
+        "type": "object",
+        "required": [
+          "user_id",
+          "coupons"
+        ],
+        "properties": {
+          "coupons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCouponItemView"
+            }
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/UserId"
+          }
+        }
+      },
+      "UserId": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  }
+}

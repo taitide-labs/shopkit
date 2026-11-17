@@ -57,7 +57,6 @@ async fn send_json<T: Serialize>(
 }
 
 #[sqlx::test(migrations = "../../migrations")]
-#[ignore = "wip"]
 async fn full_checkout_query_and_cancel_journey_across_contexts(pool: PgPool) {
     sqlx::query(
         "INSERT INTO sku_stocks (sku, available_qty, reserved_qty, updated_at)
