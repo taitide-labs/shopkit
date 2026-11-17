@@ -49,4 +49,4 @@ hk install --mise
 
 1. 从 `main` 分支创建特性或修复分支。
 2. 提交前确认本地 `mise run check` 全部通过。
-3. 创建 Pull Request，确保标题符合上述提交规范，等待 `Merge Gate` 通过后使用 `Squash and merge` 合并。
+3. 创建 Pull Request，确保标题符合上述提交规范，等待 `Merge Gate` 通过后加入合并队列自动以 Squash 方式合入。
