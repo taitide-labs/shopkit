@@ -6,7 +6,6 @@ use uuid::Uuid;
 use super::support::{build_router, post_json, seed_sku};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn reserves_available_stock_idempotently(pool: PgPool) {
     seed_sku(&pool, "SKU-CAM-01", 10, 0).await;
     let app = build_router(pool.clone());
@@ -40,7 +39,6 @@ async fn reserves_available_stock_idempotently(pool: PgPool) {
 }
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn rejects_insufficient_stock_and_invalid_quantity(pool: PgPool) {
     seed_sku(&pool, "SKU-LENS-01", 2, 0).await;
     let app = build_router(pool.clone());

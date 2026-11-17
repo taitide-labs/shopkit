@@ -6,7 +6,6 @@ use uuid::Uuid;
 use super::support::{build_router, post_empty, post_json, seed_sku};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn releases_reserved_stock_idempotently(pool: PgPool) {
     seed_sku(&pool, "SKU-TRIPOD-01", 8, 0).await;
     let app = build_router(pool.clone());
