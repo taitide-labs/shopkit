@@ -19,7 +19,52 @@
         {
           "type": "toml",
           "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-primitives')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-contracts')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-infra')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-orders-domain')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-orders-slices')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-inventory-domain')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-inventory-slices')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-promotions-slices')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
           "jsonpath": "$.package[?(@.name.value=='shopkit-server')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value=='shopkit-e2e-journeys')].version"
         }
       ]
     }

@@ -1,5 +1,9 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 
+[env]
+DATABASE_URL = "postgres://postgres:postgres@localhost:5432/postgres"
+RUSTC_WRAPPER = "sccache"
+
 [tools]
 hk = "2.12"
 rumdl = "0.3.3"
@@ -21,3 +25,19 @@ run = ["hk check --all --silent -n", "cargo deny check"]
 [tasks.fmt]
 description = "Auto-fix documentation formatting, typography, and code formatting"
 run = "hk fix --all --silent -n"
+
+[tasks.db-up]
+description = "Start local PostgreSQL 17 container for integration and acceptance tests"
+run = """
+if [ -z "$(docker ps -q --filter name='^/shopkit-postgres$')" ]; then
+  docker rm -f shopkit-postgres >/dev/null 2>&1 || true
+  docker run -d --name shopkit-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:17-alpine >/dev/null
+fi
+until docker exec shopkit-postgres pg_isready -U postgres >/dev/null 2>&1; do
+  sleep 0.5
+done
+"""
+
+[tasks.openapi]
+description = "Export contracts/openapi.json from shopkit-server OpenAPI specification"
+run = "cargo test --manifest-path Cargo.toml -p shopkit-server --locked -- --ignored export_openapi_spec"

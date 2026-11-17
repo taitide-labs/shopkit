@@ -1,0 +1,28 @@
+[package]
+name = "shopkit-e2e-journeys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dev-dependencies]
+axum.workspace = true
+http.workspace = true
+http-body-util.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+shopkit-infra.workspace = true
+shopkit-inventory-slices.workspace = true
+shopkit-orders-slices.workspace = true
+shopkit-primitives.workspace = true
+shopkit-promotions-slices.workspace = true
+shopkit-server.workspace = true
+sqlx.workspace = true
+time.workspace = true
+tokio.workspace = true
+tower.workspace = true
+uuid.workspace = true
+
+[lints]
+workspace = true
