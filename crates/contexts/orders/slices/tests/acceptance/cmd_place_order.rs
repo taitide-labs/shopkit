@@ -9,7 +9,6 @@ use uuid::Uuid;
 use super::support::{build_harness, post_json};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn places_order_with_coupon_persists_outbox_and_reserves_stock(pool: PgPool) {
     let harness = build_harness(
         pool.clone(),
@@ -76,7 +75,6 @@ async fn places_order_with_coupon_persists_outbox_and_reserves_stock(pool: PgPoo
 }
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn compensates_reserved_stock_when_coupon_below_threshold(pool: PgPool) {
     let harness = build_harness(
         pool.clone(),
@@ -113,7 +111,6 @@ async fn compensates_reserved_stock_when_coupon_below_threshold(pool: PgPool) {
 }
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn rejects_empty_items_and_insufficient_stock(pool: PgPool) {
     let harness = build_harness(
         pool,

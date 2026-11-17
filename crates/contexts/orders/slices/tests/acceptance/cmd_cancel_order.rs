@@ -13,7 +13,6 @@ use uuid::Uuid;
 use super::support::{build_harness, post_empty};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn cancels_unpaid_order_releases_resources_and_rejects_duplicate_cancel(pool: PgPool) {
     let harness = build_harness(
         pool.clone(),

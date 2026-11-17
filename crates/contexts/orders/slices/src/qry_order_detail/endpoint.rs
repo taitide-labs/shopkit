@@ -7,7 +7,17 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 use uuid::Uuid;
 
+use super::handler::{self, OrderDetailError};
 use super::query::OrderDetailResponse;
+
+fn map_error(err: OrderDetailError) -> ProblemDetails {
+    match err {
+        OrderDetailError::NotFound(order_id) => {
+            ProblemDetails::not_found("ORDER_NOT_FOUND", format!("订单 {order_id} 不存在"))
+        }
+        OrderDetailError::Internal(msg) => ProblemDetails::internal(msg),
+    }
+}
 
 #[utoipa::path(
     get,
@@ -22,10 +32,13 @@ use super::query::OrderDetailResponse;
     tag = "orders"
 )]
 async fn order_detail_endpoint(
-    State(_state): State<AppState>,
-    Path(_order_id): Path<Uuid>,
+    State(state): State<AppState>,
+    Path(order_id): Path<Uuid>,
 ) -> Result<Json<OrderDetailResponse>, ProblemDetails> {
-    Err(ProblemDetails::not_implemented("qry_order_detail"))
+    handler::handle(&state, order_id)
+        .await
+        .map(Json)
+        .map_err(map_error)
 }
 
 pub fn router() -> OpenApiRouter<AppState> {
@@ -36,7 +49,7 @@ inventory::submit! {
     SliceDescriptor {
         context: "orders",
         name: "qry_order_detail",
-        status: SliceStatus::Planned,
+        status: SliceStatus::Active,
         router_fn: router,
     }
 }

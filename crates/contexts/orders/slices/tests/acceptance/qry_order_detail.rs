@@ -7,7 +7,6 @@ use uuid::Uuid;
 use super::support::{build_harness, get_json};
 
 #[sqlx::test(migrations = "../../../../migrations")]
-#[ignore = "wip"]
 async fn returns_order_detail_with_items_or_404(pool: PgPool) {
     let order_id = Uuid::new_v4();
     let user_id = Uuid::new_v4();
